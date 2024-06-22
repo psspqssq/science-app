@@ -1,56 +1,64 @@
-//backend/server.js
-let express = require('express');
-let mongoose = require('mongoose');
-let cors = require('cors');
-let bodyParser = require('body-parser');
-let dbConfig = require('./database/db');
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const dbConfig = require('./config/db');
+const jwt = require('jsonwebtoken');
+const userRoute = require('./routes/user.route');
 
-// Express Route
-const userRoute =
-	require('../server/routes/user.route')
-
-// Configure mongoDB Database
-var mongooseOptions = {
+const mongooseOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}
+};
 
-console.log(dbConfig);
-// Connecting MongoDB Database
-mongoose.Promise = global.Promise;
 mongoose.connect(dbConfig.db, mongooseOptions)
-	.then(() => {
-		console.log('¡Conectado éxitosamente a la base de datos!')
-	},
-		error => {
-			console.log('No se ha podido establecer la conexión a la base de datos: ' + error)
-		}
-	)
+    .then(() => {
+        console.log('Connected to the database successfully!')
+    })
+    .catch(error => {
+        console.log('Database connection error: ' + error)
+    });
 
 const app = express();
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-	extended: true
-}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-app.use('/users', userRoute)
 
+const authenticateJWT = (req, res, next) => {
+    const token = req.header('Authorization')?.split(' ')[1];
+
+    if (token) {
+        jwt.verify(token, 'upbc', (err, user) => {
+            if (err) {
+                return res.sendStatus(403);
+            }
+            req.user = user;
+            next();
+        });
+    } else {
+        res.sendStatus(401);
+    }
+};
+
+// Public routes
+app.use('/', userRoute);
+
+// Protected routes
+app.use('/users', authenticateJWT, userRoute);
 
 // PORT
 const port = process.env.PORT || 4000;
-const server = app.listen(port,
-	() => {
-		console.log('Conectado al puerto:  ' + port)
-	})
+const server = app.listen(port, () => {
+    console.log('Connected to port: ' + port)
+});
 
 // 404 Error
 app.use((req, res, next) => {
-	res.status(404).send('¡Error 404!')
+    res.status(404).send('Error 404!')
 });
 
-app.use(function (err, req, res, next) {
-	console.error(err.message);
-	if (!err.statusCode) err.statusCode = 500;
-	res.status(err.statusCode)
-		.send(err.message);
+app.use((err, req, res, next) => {
+    console.error(err.message);
+    if (!err.statusCode) err.statusCode = 500;
+    res.status(err.statusCode).send(err.message);
 });

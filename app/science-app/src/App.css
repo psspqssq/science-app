@@ -10,16 +10,6 @@ body h3 {
 	color: #ffffff;
 }
 
-.form-wrapper,
-.table-wrapper {
-	max-width: 500px;
-	margin: 0 auto;
-}
-
-.table-wrapper {
-	max-width: 700px;
-}
-
 .edit-link {
 	padding: 7px 10px;
 	font-size: 0.875rem;
@@ -45,3 +35,33 @@ input::-webkit-inner-spin-button {
 	margin: 0;
 }
 
+.table-wrapper {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table-wrapper h2 {
+    color: #333;
+    font-weight: bold;
+}
+
+.table-header {
+    background-color: #343a40;
+    color: white;
+}
+
+.table-header th {
+    font-weight: normal;
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+}
+
+.table th,
+.table td {
+    text-align: center;
+}

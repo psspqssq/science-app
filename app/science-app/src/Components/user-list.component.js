@@ -7,13 +7,19 @@ const UserList = () => {
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
-        axios.get("http://localhost:4000/")
-            .then(({ data }) => {
-                setUsers(data);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+        const fetchUsers = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const response = await axios.get("http://localhost:4000/", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setUsers(response.data);
+            } catch (error) {
+                console.error("Error fetching users:", error);
+            }
+        };
+
+        fetchUsers();
     }, []);
 
     const DataTable = () => {
@@ -40,9 +46,7 @@ const UserList = () => {
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {DataTable()}
-                            </tbody>
+                            <tbody>{DataTable()}</tbody>
                         </Table>
                     </div>
                 </Col>

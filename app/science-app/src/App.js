@@ -1,8 +1,6 @@
-// src/App.js
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { Nav, Navbar, Container } from 'react-bootstrap';
-import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.css';
 import './App.css';
 
@@ -11,34 +9,55 @@ import CreateUser from './Components/create-user.component';
 import EditUser from './Components/edit-user.component';
 import UserList from './Components/user-list.component';
 import LoginForm from './Components/LoginForm';
+import LandingPage from './Components/LandingPage';
+import UploadLink from './Components/UploadLink';
 
 const App = () => {
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
-            axios
-                .post('http://localhost:4000/verify-token', { token })
-                .then((response) => {
-                    if (response.status === 200) {
-                        setUser(response.data.user);
-                    }
-                })
-                .catch((err) => {
-                    console.error('Token verification failed:', err);
-                });
+            fetchUser(token);
+        } else {
+            setLoading(false);
         }
     }, []);
 
-    const handleLogin = (userData) => {
-        setUser(userData);
+    const fetchUser = async (token) => {
+        try {
+            const response = await fetch('http://localhost:4000/verify-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                const { user } = await response.json();
+                setUser(user);
+            }
+        } catch (error) {
+            console.error('Error verifying token:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleLogin = (user, token) => {
+        setUser(user);
+        localStorage.setItem('token', token);
     };
 
     const handleLogout = () => {
         setUser(null);
         localStorage.removeItem('token');
     };
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <Router>
@@ -47,7 +66,7 @@ const App = () => {
                     <Navbar bg="dark" variant="dark">
                         <Container>
                             <Navbar.Brand>
-                                <Link to={user ? '/user-list' : '/login'} className="nav-link">
+                                <Link to={user ? '/dashboard' : '/login'} className="nav-link">
                                     Biblioteca de la Cienciología
                                 </Link>
                             </Navbar.Brand>
@@ -56,13 +75,23 @@ const App = () => {
                                 {user ? (
                                     <>
                                         <Nav>
-                                            <Link to="/user-list" className="nav-link">
-                                                Usuarios
+                                            <Link to="/dashboard" className="nav-link">
+                                                Documentos
+                                            </Link>
+                                        </Nav>
+                                        <Nav>
+                                            <Link to="/upload-link" className="nav-link">
+                                                Subir Enlace
                                             </Link>
                                         </Nav>
                                         <Nav>
                                             <Link to="/create-user" className="nav-link">
                                                 Crear Usuario
+                                            </Link>
+                                        </Nav>
+                                        <Nav>
+                                            <Link to="/user-list" className="nav-link">
+                                                Lista de Usuarios
                                             </Link>
                                         </Nav>
                                         <Nav>
@@ -72,11 +101,18 @@ const App = () => {
                                         </Nav>
                                     </>
                                 ) : (
-                                    <Nav>
-                                        <Link to="/login" className="nav-link">
-                                            Iniciar Sesión
-                                        </Link>
-                                    </Nav>
+                                    <>
+                                        <Nav>
+                                            <Link to="/create-user" className="nav-link">
+                                                Crear Usuario
+                                            </Link>
+                                        </Nav>
+                                        <Nav>
+                                            <Link to="/login" className="nav-link">
+                                                Iniciar Sesión
+                                            </Link>
+                                        </Nav>
+                                    </>
                                 )}
                             </Nav>
                         </Container>
@@ -85,17 +121,19 @@ const App = () => {
 
                 <Container>
                     <Routes>
+                        <Route path="/create-user" element={<CreateUser />} />
                         <Route
                             exact
                             path="/login"
-                            element={<LoginForm handleLogin={handleLogin} />}
+                            element={user ? <Navigate to="/dashboard" /> : <LoginForm handleLogin={handleLogin} />}
                         />
                         {user && (
                             <>
-                                <Route path="/create-user" element={<CreateUser />} />
                                 <Route path="/edit-user/:id" element={<EditUser />} />
                                 <Route path="/user-list" element={<UserList />} />
-                                <Route path="/" element={<UserList />} />
+                                <Route path="/dashboard" element={<LandingPage user={user} />} />
+                                <Route path="/upload-link" element={<UploadLink />} />
+                                <Route path="/" element={<LandingPage user={user} />} />
                             </>
                         )}
                     </Routes>

@@ -23,7 +23,6 @@ const CreateUser = () => {
 			.then(res => {
 				if (res.status === 200) {
 					alert('User successfully created');
-					// Optionally redirect to user list or another page upon successful creation
 				} else {
 					Promise.reject();
 				}
@@ -34,7 +33,6 @@ const CreateUser = () => {
 			});
 	};
 
-	// handleCheckboxChange handler
 	const handleCheckboxChange = (event) => {
 		const { name, checked } = event.target;
 		setFormValues(prevState => {
@@ -47,7 +45,7 @@ const CreateUser = () => {
 
 	return (
 		<div>
-			<UserForm initialValues={formValues} onSubmit={onSubmit} enableReinitialize>
+			<UserForm initialValues={formValues} onSubmit={onSubmit} enableReinitialize isNewUser={true}>
 				Crear Usuario
 			</UserForm>
 		</div>

@@ -1,4 +1,3 @@
-// src/Components/LoginForm.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Form, Button, FormGroup, FormControl, FormLabel } from 'react-bootstrap';
@@ -15,22 +14,22 @@ const LoginForm = ({ handleLogin }) => {
         try {
             const response = await axios.post('http://localhost:4000/login', { email, password });
             if (response.status === 200) {
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('name', response.data.name);
-                handleLogin(response.data);
-                navigate('/user-list'); // Redirect to user list or dashboard
+                const { token, user } = response.data;
+                localStorage.setItem('token', token);
+                handleLogin(user, token);
+                navigate('/dashboard');
             } else {
-                setError('Login failed. Please check your credentials.');
+                setError('Inicio de sesión fallido, por favor checa tu usuario y contraseña.');
             }
         } catch (error) {
-            console.error('Error logging in:', error);
-            setError('Login failed. Please check your credentials.');
+            console.error('Error iniciando sesión: ', error);
+            setError('Inicio de sesión fallido, por favor checa tu usuario y contraseña.');
         }
     };
 
     return (
         <Form onSubmit={handleSubmit}>
-            <h2>Login</h2>
+            <h2>Inicio de Sesión</h2>
             {error && <p className="text-danger">{error}</p>}
             <FormGroup controlId="email">
                 <FormLabel>Email</FormLabel>
@@ -42,7 +41,7 @@ const LoginForm = ({ handleLogin }) => {
                 />
             </FormGroup>
             <FormGroup controlId="password">
-                <FormLabel>Password</FormLabel>
+                <FormLabel>Contraseña</FormLabel>
                 <FormControl
                     type="password"
                     value={password}
@@ -51,7 +50,7 @@ const LoginForm = ({ handleLogin }) => {
                 />
             </FormGroup>
             <Button variant="primary" type="submit">
-                Login
+                Iniciar Sesión
             </Button>
         </Form>
     );

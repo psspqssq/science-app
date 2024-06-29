@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const dbConfig = require('./config/db');
 const jwt = require('jsonwebtoken');
 const userRoute = require('./routes/user.route');
+const linkRoute = require('./routes/links.route');
+const authenticateJWT = require('./middleware/authenticateJWT');
 
 const mongooseOptions = {
     useNewUrlParser: true,
@@ -24,26 +26,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-const authenticateJWT = (req, res, next) => {
-    const token = req.header('Authorization')?.split(' ')[1];
-
-    if (token) {
-        jwt.verify(token, 'upbc', (err, user) => {
-            if (err) {
-                return res.sendStatus(403);
-            }
-            req.user = user;
-            next();
-        });
-    } else {
-        res.sendStatus(401);
-    }
-};
-
 // Public routes
 app.use('/', userRoute);
 
 // Protected routes
+app.use('/api', authenticateJWT, linkRoute);
 app.use('/users', authenticateJWT, userRoute);
 
 // PORT

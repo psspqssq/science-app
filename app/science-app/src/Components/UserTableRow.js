@@ -10,6 +10,12 @@ const permissionsMap = {
     removepermissions: 'Remover Permisos',
     blockusers: 'Bloquear Usuarios',
     addpermissions: 'Agregar Permisos',
+    editusers: 'Editar Usuarios',
+    admin: 'Administrador',
+    contentlevel1: "Ver contenido nivel 1",
+    contentlevel2: "Ver contenido nivel 2",
+    contentlevel3: "Ver contenido nivel 3",
+    viewcontent: "Ver contenido",
 };
 
 const UserTableRow = (props) => {
@@ -22,7 +28,7 @@ const UserTableRow = (props) => {
         country,
         permissions
     } = props.obj;
-
+    const userPermissions = props.user.user.permissions;
     const deleteUser = () => {
         const token = localStorage.getItem('token'); // Retrieve JWT token from local storage
         axios
@@ -56,12 +62,17 @@ const UserTableRow = (props) => {
                 </ul>
             </td>
             <td>
-                <Link className="edit-link" to={`/edit-user/${_id}`}>
-                    Editar
-                </Link>
-                <Button onClick={deleteUser} size="sm" variant="danger" className="ml-2">
-                    Borrar
-                </Button>
+                {userPermissions.includes('editusers') && 
+                    <Link className="edit-link" to={`/edit-user/${_id}`}>
+                        Editar
+                    </Link>
+                }
+                {userPermissions.includes('deleteusers') && 
+                    <Button onClick={deleteUser} size="sm" variant="danger" className="ml-2">
+                        Borrar
+                    </Button>
+                }
+                
             </td>
         </tr>
     );

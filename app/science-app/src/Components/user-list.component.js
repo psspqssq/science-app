@@ -3,7 +3,7 @@ import axios from "axios";
 import { Table, Container, Row, Col } from "react-bootstrap";
 import UserTableRow from "./UserTableRow";
 
-const UserList = () => {
+const UserList = (user) => {
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
@@ -23,8 +23,8 @@ const UserList = () => {
     }, []);
 
     const DataTable = () => {
-        return users.map((user) => {
-            return <UserTableRow key={user._id} obj={user} />;
+        return users.map((helpuser) => {
+            return <UserTableRow key={helpuser._id} obj={helpuser} user={user}/>;
         });
     };
 

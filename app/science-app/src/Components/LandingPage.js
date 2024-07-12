@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Card, Button, Container, Row, Col } from 'react-bootstrap';
+import { Card, Button, Container, Row, Col, Form } from 'react-bootstrap';
 
 const LandingPage = ({ user }) => {
     const [links, setLinks] = useState([]);
@@ -12,13 +12,25 @@ const LandingPage = ({ user }) => {
                 const response = await axios.get('http://localhost:4000/api/links', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                setLinks(response.data);
+                // Filter links based on user access level
+                const filteredLinks = response.data.filter(link => {
+                    if (user.permissions.includes("contentlevel3")) {
+                        return true; // Show all links
+                    } else if (user.permissions.includes("contentlevel2")) {
+                        return link.accessLevel === 1 || link.accessLevel === 2;
+                    } else if (user.permissions.includes("contentlevel1")) {
+                        return link.accessLevel === 1;
+                    } else {
+                        return false;
+                    }
+                });
+                setLinks(filteredLinks);
             } catch (error) {
-                console.error('Error cargando documentos:', error);
+                console.error('Error loading documents:', error);
             }
         };
         fetchLinks();
-    }, []);
+    }, [user]); // Re-fetch links when user changes
 
     const deleteLink = async (id) => {
         try {
@@ -32,7 +44,28 @@ const LandingPage = ({ user }) => {
                 alert('No tienes permiso para borrar documentos.');
             }
         } catch (error) {
-            console.error('Error borrando el documento:', error);
+            console.error('Error deleting document:', error);
+        }
+    };
+
+    const handleAccessLevelChange = async (linkId, newAccessLevel) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.patch(
+                `http://localhost:4000/api/links/${linkId}/accesslevel`,
+                { accessLevel: newAccessLevel },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (response.status === 200) {
+                const updatedLinks = links.map(link =>
+                    link._id === linkId ? { ...link, accessLevel: newAccessLevel } : link
+                );
+                setLinks(updatedLinks);
+            } else {
+                console.error('Failed to update access level');
+            }
+        } catch (error) {
+            console.error('Error updating access level:', error);
         }
     };
 
@@ -49,8 +82,23 @@ const LandingPage = ({ user }) => {
                                 <Card.Text>
                                     <a href={link.url} target="_blank" rel="noopener noreferrer">{link.url}</a>
                                 </Card.Text>
+                                <p>Nivel de Acceso: {link.accessLevel}</p> {/* Display access level */}
                                 {user.permissions.includes('deletecontent') && (
                                     <Button variant="danger" onClick={() => deleteLink(link._id)}>Borrar</Button>
+                                )}
+                                {user.permissions.includes('admin') && (
+                                    <Form.Group controlId={`accessLevel-${link._id}`} className="mt-3">
+                                        <Form.Label>Cambiar Nivel de Acceso:</Form.Label>
+                                        <Form.Control
+                                            as="select"
+                                            value={link.accessLevel}
+                                            onChange={(e) => handleAccessLevelChange(link._id, parseInt(e.target.value))}
+                                        >
+                                            <option value={1}>1</option>
+                                            <option value={2}>2</option>
+                                            <option value={3}>3</option>
+                                        </Form.Control>
+                                    </Form.Group>
                                 )}
                             </Card.Body>
                         </Card>

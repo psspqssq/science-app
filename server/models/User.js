@@ -23,7 +23,11 @@ let userSchema = new Schema(
       type: String
     },
     permissions: {
-      type: [String]
+      type: [String],
+      default: []
+    },
+    blockUntil: {
+      type: Date
     }
   },
   {

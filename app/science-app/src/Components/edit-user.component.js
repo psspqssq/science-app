@@ -11,7 +11,13 @@ const permissionsOptions = [
     { value: 'addpermissions', label: 'Add Permissions' },
 ];
 
-const EditUser = () => {
+const isAdmin = (user) =>{
+    if(!user.user.permissions) return false;
+    if(user.user.permissions.includes('admin')) return true;
+    return false;
+}
+
+const EditUser = (user) => {
     const params = useParams();
     const navigate = useNavigate();
     const [formValues, setFormValues] = useState({
@@ -45,7 +51,7 @@ const EditUser = () => {
     const onSubmit = async (userObject) => {
         try {
             const token = localStorage.getItem('token');
-            const { password, ...rest } = userObject; // Exclude password from update
+            const { password, ...rest } = userObject; 
             const response = await axios.put(
                 `http://localhost:4000/update-user/${params.id}`,
                 rest,
@@ -73,6 +79,8 @@ const EditUser = () => {
             onSubmit={onSubmit}
             isNewUser={false}
             enableReinitialize
+            user={user}
+            isAdmin={isAdmin(user)}
         >
             Update User
         </UserForm>

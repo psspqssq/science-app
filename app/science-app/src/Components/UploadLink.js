@@ -6,22 +6,26 @@ const UploadLink = () => {
     const [name, setName] = useState('');
     const [url, setUrl] = useState('');
     const [picture, setPicture] = useState('');
+    const [category, setCategory] = useState('');
+    const [accessLevel, setAccessLevel] = useState(1); // Default access level
     const [message, setMessage] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('token'); 
+        const token = localStorage.getItem('token');
         try {
             const response = await axios.post(
                 'http://localhost:4000/api/create-link',
-                { name, url, picture },
-                { headers: { Authorization: `Bearer ${token}` } } 
+                { name, url, picture, category, accessLevel }, // Include accessLevel in the POST request
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             if (response.status === 201) {
-                setMessage('¡Documento subido éxitosamente!');
+                setMessage('¡Documento subido exitosamente!');
                 setName('');
                 setUrl('');
                 setPicture('');
+                setCategory('');
+                setAccessLevel(1); // Reset access level after successful submission
             } else {
                 setMessage('Fallo cargando documento.');
             }
@@ -61,8 +65,30 @@ const UploadLink = () => {
                     onChange={(e) => setPicture(e.target.value)}
                 />
             </FormGroup>
+            <FormGroup controlId="category">
+                <FormLabel>Categoría</FormLabel>
+                <FormControl
+                    type="text"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    required
+                />
+            </FormGroup>
+            <FormGroup controlId="accessLevel">
+                <FormLabel>Nivel de Acceso</FormLabel>
+                <FormControl
+                    as="select"
+                    value={accessLevel}
+                    onChange={(e) => setAccessLevel(Number(e.target.value))}
+                    required
+                >
+                    <option value={1}>Nivel 1</option>
+                    <option value={2}>Nivel 2</option>
+                    <option value={3}>Nivel 3</option>
+                </FormControl>
+            </FormGroup>
             <Button variant="primary" type="submit">
-                Upload
+                Subir
             </Button>
         </Form>
     );

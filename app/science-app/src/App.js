@@ -1,3 +1,5 @@
+//Agrupar Crear Usuario, Iniciar Sesión
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { Nav, Navbar, Container } from 'react-bootstrap';
@@ -121,7 +123,7 @@ const App = () => {
 
                 <Container>
                     <Routes>
-                        <Route path="/create-user" element={<CreateUser />} />
+                        <Route path="/create-user" element={<CreateUser user={user} />} />
                         <Route
                             exact
                             path="/login"
@@ -129,8 +131,8 @@ const App = () => {
                         />
                         {user && (
                             <>
-                                <Route path="/edit-user/:id" element={<EditUser />} />
-                                <Route path="/user-list" element={<UserList />} />
+                                <Route path="/edit-user/:id" element={<EditUser user={user}/>} />
+                                <Route path="/user-list" element={<UserList user={user} />} />
                                 <Route path="/dashboard" element={<LandingPage user={user} />} />
                                 <Route path="/upload-link" element={<UploadLink />} />
                                 <Route path="/" element={<LandingPage user={user} />} />

@@ -17,6 +17,15 @@ const LinkSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    accessLevel: {
+        type: Number,
+        required: true,
+        enum: [1, 2, 3] // Define access levels as 1, 2, or 3
+    },
+    category: {
+        type: String,
+        required: true
     }
 });
 

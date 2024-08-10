@@ -1,5 +1,3 @@
-//Agrupar Crear Usuario, Iniciar Sesión
-
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -74,58 +72,57 @@ const App = () => {
     <Router>
       <div className="App">
         <header className="App-header">
-          <Navbar bg="dark" variant="dark">
+          <Navbar bg="dark" variant="dark" expand="lg">
             <Container>
               <Navbar.Brand>
                 <Link to={user ? "/dashboard" : "/login"} className="nav-link">
                   Biblioteca de la Cienciología
                 </Link>
               </Navbar.Brand>
-
-              <Nav className="justify-content-end">
-                {user ? (
-                  <>
-                    <Nav>
-                      <Link to="/dashboard" className="nav-link">
-                        Documentos
-                      </Link>
-                    </Nav>
-                    <Nav>
-                      <Link to="/upload-link" className="nav-link">
-                        Subir Enlace
-                      </Link>
-                    </Nav>
-                    <Nav>
-                      <Link to="/create-user" className="nav-link">
-                        Crear Usuario
-                      </Link>
-                    </Nav>
-                    <Nav>
-                      <Link to="/user-list" className="nav-link">
-                        Lista de Usuarios
-                      </Link>
-                    </Nav>
-                    <Nav>
-                      <Link onClick={handleLogout} className="nav-link">
-                        Cerrar Sesión {user.name}
-                      </Link>
-                    </Nav>
-                  </>
-                ) : (
-                  <>
-                    <Nav>
-                      <Link to="/create-user" className="nav-link">
-                        Crear Usuario
-                      </Link>
-                    </Nav>
-                    <Nav>
-                      <Link to="/login" className="nav-link">
-                        Iniciar Sesión
-                      </Link>
-                    </Nav>
-                  </>
-                )}
-              </Nav>
+              <Navbar.Toggle aria-controls="basic-navbar-nav" />
+              <Navbar.Collapse id="basic-navbar-nav">
+                <Nav className="ml-auto">
+                  {user ? (
+                    <>
+                      <Nav>
+                        <Link to="/dashboard" className="nav-link">
+                          Documentos
+                        </Link>
+                      </Nav>
+                      <Nav>
+                        <Link to="/upload-link" className="nav-link">
+                          Subir Enlace
+                        </Link>
+                      </Nav>
+                      {user.permissions.includes("admin") && (
+                        <Nav>
+                          <Link to="/user-list" className="nav-link">
+                            Lista de Usuarios
+                          </Link>
+                        </Nav>
+                      )}
+                      <Nav>
+                        <Link onClick={handleLogout} className="nav-link">
+                          Cerrar Sesión {user.name}
+                        </Link>
+                      </Nav>
+                    </>
+                  ) : (
+                    <>
+                      <Nav>
+                        <Link to="/create-user" className="nav-link">
+                          Crear Usuario
+                        </Link>
+                      </Nav>
+                      <Nav>
+                        <Link to="/login" className="nav-link">
+                          Iniciar Sesión
+                        </Link>
+                      </Nav>
+                    </>
+                  )}
+                </Nav>
+              </Navbar.Collapse>
             </Container>
           </Navbar>
         </header>

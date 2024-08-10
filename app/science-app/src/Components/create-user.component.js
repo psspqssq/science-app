@@ -18,12 +18,15 @@ const CreateUser = ({ user }) => {
     dob: "",
     city: "",
     country: "",
-    permissions: [],
+    permissions: ["viewcontent", "contentlevel1"],
   });
   // onSubmit handler
   const onSubmit = (userObject) => {
     axios
-      .post("/create-user", userObject)
+      .post(
+        "https://science-app-server-df7502eefe68.herokuapp.com/create-user",
+        userObject
+      )
       .then((res) => {
         if (res.status === 200) {
           alert("User successfully created");
